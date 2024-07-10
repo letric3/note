@@ -1,4 +1,13 @@
 YOLO를 가상환경에서 실험한것
+
+과정 요약
+1. Jetson Nano환경 준비
+2. Conda 설치(Python 3.8)
+3. Conda 가상화에서 pytorch1.11.0, torchvision 0.12.0 설치
+4. Conda 가상황에서 Ultralytics 설치 및 jetson nano용 YOLOv8 소스 다운로드
+5. Conda 가상화에서 ffmpeg 설치
+6. Conda 가상화에서 YOLOv8 실행
+
 1. Archiconda3을 wget으로 다운로드
 uname -a
 wget https://github.com/Archiconda/build-tools/releases/download/0.2.3/Archiconda3-0.2.3-Linux-aarch64.sh
@@ -33,5 +42,54 @@ conda env list 로 설치를 확인하고 conda activate yolo로 활성화 한�
 다음은
 yolo 가상환경에서 pytorch, torchvision을 설치하는 과정이다.
 ``` bash
+ pip install -U pip wheel gdown
 
+ gdown https://drive.google.com/uc?id=1hs9HM0XJ2LPFghcn7ZMOs5qu5HexPXwM
+
+ gdown https://drive.google.com/uc?id=1m0d8ruUY8RvCP9eVjZw4Nc8LAwM8yuGV
 ```
+
+``` bash
+sudo apt-get install libopenblas-base libopenmpi-dev
+sudo apt-get install libomp-dev
+pip install torch-1.11.0a0+gitbc2c6ed-cp38-cp38-linux_aarch64.whl
+pip install torchvision-0.12.0a0+9b5a3fe-cp38-cp38-linux_aarch64.whl
+```
+openblas: 고성능 수치 선형대수 연산 라이브러리
+openmpi: 여러 컴퓨터 간의 정보 교환을 기술하는표준 (같은 프로그램을 여러 노드에서 실행하시킨다.)
+omp: 멀티 스레드 기반의 공유 메모리 병렬 프로그램을 위한 표준 API
+
+numpy 다운로드후 python 실행후 torch버전 및 torch의 쿠다사용 여부 확인
+``` bash
+python
+import torch
+import torchvision
+print(torch.__version__)
+print(torchvision.__version__)
+print("cuda used", torch.cuda.is_available())
+cuda used True(나오는지 확인)
+```
+torch와 torchvision의 버전이 각각 1.11.0과 0.12.0, 쿠다 사용여부 확인
+
+YOLOv8의 소스 다운로드
+``` bash
+git clone https://github.com/Tory-Hwang/Jetson-Nano2
+cd Jetson-Nano2/
+cd V8
+pip install ultralytics
+pip install -r requirements.txt 
+pip install ffmpeg-python
+sudo apt install tree
+tree -L 2
+```
+ultralytics, requirements.txt(요구사항 파일), ffmpeg-python를 설치
+
+필자와 참고한 글의 필자와 환경이 달라 rtsp의 사용여부가 다르므로 rtsp를 사용하지 않도록 함
+
+``` bash
+vi detectY8.py
+90번째 줄의 brtsp를 주석처리후
+brtsp = False로 수정
+```
+
+python detect8.py 실행시 카메라가 켜지며 사물을 인식
